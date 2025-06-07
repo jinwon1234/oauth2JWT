@@ -5,6 +5,7 @@ import com.oauth2.jwt.oauth2.JWTUtil;
 import com.oauth2.jwt.oauth2.CustomSuccessHandler;
 import com.oauth2.jwt.member.service.CustomerOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,7 +52,6 @@ public class SecurityConfig {
                         return configuration;
                     }
                 }));
-
 
         //csrf disable -> JWT방식은 stateless기 때문에 꺼도된다.
         http
