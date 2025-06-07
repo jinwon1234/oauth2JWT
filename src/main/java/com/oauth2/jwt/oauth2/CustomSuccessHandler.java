@@ -31,7 +31,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtUtil.createJWT(verifiedClient.getIdentifier(), authority, 60*60*60L);
 
         response.addCookie(createCookie("Authorization", accessToken));
-        response.sendRedirect("http://www.jinwon.click");
+        response.sendRedirect("https://www.jinwon.click");
     }
 
     private Cookie createCookie(String key, String value) {
