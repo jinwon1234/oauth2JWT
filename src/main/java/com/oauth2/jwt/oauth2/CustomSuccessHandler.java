@@ -31,7 +31,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtUtil.createJWT(verifiedClient.getIdentifier(), authority, 60*60*60L);
 
         response.addCookie(createCookie("Authorization", accessToken));
-        response.sendRedirect("https://www.jinwon.click");
+        response.sendRedirect("http://www.jinwon.click");
     }
 
     private Cookie createCookie(String key, String value) {
@@ -39,6 +39,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie.setMaxAge(60*60*60);
         cookie.setPath("/"); // 모든 경로에서 쿠키 사용 가능
         cookie.setHttpOnly(true); // 자바스크립트로 쿠키 탈취 방지
+        cookie.setSecure(true);
         return cookie;
     }
 }
