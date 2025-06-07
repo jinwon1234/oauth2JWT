@@ -1,0 +1,66 @@
+name: Deploy To EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: JDK 21버전 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: .env 생성 (멀티라인)
+        run: echo "${{ secrets.ENV }}" > .env
+        shell: bash
+
+
+
+      - name: .env 내용을 export하여 빌드에 주입
+        run: |
+          set -a                     # export all variables automatically
+          source .env                # .env 파일의 변수들을 환경에 로드
+          set +a                     # export 자동화 해제
+          ./gradlew clean build      # 환경변수가 주입된 상태로 gradle 빌드 실행
+        shell: bash
+
+      - name: AWS Resource에 접근할 수 있게 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: ECR에 로그인하기
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker 이미지 생성
+        run: docker build --platform linux/amd64 -t oauth2JWT-server .
+
+      - name: Docker 이미지에 Tag 붙이기
+        run: docker tag oauth2JWT-server ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
+
+      - name: ECR에 Docker 이미지 Push하기
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
+
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            docker stop oauth2JWT-server || true
+            docker rm oauth2JWT-server || true
+            docker pull ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
+            docker run -d --name oauth2JWT-server -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
