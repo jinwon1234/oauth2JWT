@@ -14,6 +14,6 @@ public class CorsMVcConfig implements WebMvcConfigurer {
 
         registry.addMapping("/**")
                 .exposedHeaders("Set-Cookie")
-                .allowedOrigins("http://www.jinwon.click");
+                .allowedOrigins("https://www.jinwon.click");
     }
 }

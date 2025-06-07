@@ -39,7 +39,7 @@ public class SecurityConfig {
                         CorsConfiguration configuration = new CorsConfiguration();
 
                         configuration.setAllowedOrigins(List.of(
-                                "http://www.jinwon.click"
+                                "https://www.jinwon.click"
                         ));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
