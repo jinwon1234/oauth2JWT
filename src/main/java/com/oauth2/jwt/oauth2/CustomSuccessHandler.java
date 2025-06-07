@@ -40,6 +40,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie.setPath("/"); // 모든 경로에서 쿠키 사용 가능
         cookie.setHttpOnly(true); // 자바스크립트로 쿠키 탈취 방지
         cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "None");
+        cookie.setDomain("jinwon.click");
         return cookie;
     }
 }
