@@ -44,13 +44,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Docker 이미지 생성
-        run: docker build --platform linux/amd64 -t oauth2JWT-server .
+        run: docker build --platform linux/amd64 -t oauth2jwt-server .
 
       - name: Docker 이미지에 Tag 붙이기
-        run: docker tag oauth2JWT-server ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
+        run: docker tag oauth2jwt-server ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
 
       - name: ECR에 Docker 이미지 Push하기
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
 
       - name: SSH로 EC2에 접속하기
         uses: appleboy/ssh-action@v1.0.3
@@ -60,7 +60,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
-            docker stop oauth2JWT-server || true
-            docker rm oauth2JWT-server || true
-            docker pull ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
-            docker run -d --name oauth2JWT-server -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/oauth2JWT-server:latest
+            docker stop oauth2jwt-server || true
+            docker rm oauth2jwt-server || true
+            docker pull ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
+            docker run -d --name oauth2jwt-server -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
