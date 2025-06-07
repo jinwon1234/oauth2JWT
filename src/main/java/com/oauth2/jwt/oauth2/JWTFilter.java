@@ -28,6 +28,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
         Cookie[] cookies = request.getCookies();
 
+        if (cookies == null) {
+            response.getWriter().write("Access Token이 존재하지 않음");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         String accessToken = Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals("Authorization"))
                 .map(cookie -> cookie.getValue())
