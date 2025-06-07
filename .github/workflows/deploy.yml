@@ -17,20 +17,11 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+          
+      - name: 빌드
+        run:
+          ./gradlew clean build
 
-      - name: .env 생성 (멀티라인)
-        run: echo "${{ secrets.ENV }}" > .env
-        shell: bash
-
-
-
-      - name: .env 내용을 export하여 빌드에 주입
-        run: |
-          set -a                     # export all variables automatically
-          source .env                # .env 파일의 변수들을 환경에 로드
-          set +a                     # export 자동화 해제
-          ./gradlew clean build      # 환경변수가 주입된 상태로 gradle 빌드 실행
-        shell: bash
 
       - name: AWS Resource에 접근할 수 있게 AWS credentials 설정
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,7 +51,8 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
+            echo "${{ secrets.ENV }}" > .env
             docker stop oauth2jwt-server || true
             docker rm oauth2jwt-server || true
             docker pull ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
-            docker run -d --name oauth2jwt-server -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
+            docker run -d --name oauth2jwt-server --env-file .env -p 8080:8080 ${{ steps.login-ecr.outputs.registry }}/oauth2jwt-server:latest
