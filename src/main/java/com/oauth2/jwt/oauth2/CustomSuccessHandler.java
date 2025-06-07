@@ -30,18 +30,16 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String authority = auth.getAuthority();
         String accessToken = jwtUtil.createJWT(verifiedClient.getIdentifier(), authority, 60*60*60L);
 
-        setAuthCookie(response, accessToken);
+        response.addCookie(createCookie("Authorization", accessToken));
         response.sendRedirect("http://www.jinwon.click");
     }
 
-    private void setAuthCookie(HttpServletResponse response, String token) {
-        String cookieValue = "Authorization=" + token +
-                "; Path=/" +
-                "; Max-Age=" + (60 * 60 * 60) +
-                "; HttpOnly" +
-                "; Secure" +
-                "; SameSite=None";
-
-        response.setHeader("Set-Cookie", cookieValue);
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        cookie.setPath("/"); // 모든 경로에서 쿠키 사용 가능
+        cookie.setHttpOnly(true); // 자바스크립트로 쿠키 탈취 방지
+        cookie.setSecure(true);
+        return cookie;
     }
 }
